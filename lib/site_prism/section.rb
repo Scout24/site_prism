@@ -5,6 +5,7 @@ module SitePrism
     include Capybara::DSL
     include ElementChecker
     include Loadable
+    include LambdaResolver
     extend ElementContainer
 
     attr_reader :root_element, :parent
@@ -42,19 +43,19 @@ module SitePrism
     private
 
     def find_first(*find_args)
-      root_element.find(*find_args)
+      root_element.find(*resolve_lambdas(find_args))
     end
 
     def find_all(*find_args)
-      root_element.all(*find_args)
+      root_element.all(*resolve_lambdas(find_args))
     end
 
     def element_exists?(*find_args)
-      root_element.has_selector?(*find_args) unless root_element.nil?
+      root_element.has_selector?(*resolve_lambdas(find_args)) unless root_element.nil?
     end
 
     def element_does_not_exist?(*find_args)
-      root_element.has_no_selector?(*find_args) unless root_element.nil?
+      root_element.has_no_selector?(*resolve_lambdas(find_args)) unless root_element.nil?
     end
   end
 end

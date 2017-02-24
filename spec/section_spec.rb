@@ -54,6 +54,19 @@ describe SitePrism::Page do
         expect { Page.section :incorrect_section, '.section' }.to raise_error ArgumentError, 'You should provide section class either as a block, or as the second argument'
       end
     end
+
+    context 'second argument is a lambda' do
+      class PageWithLambdaSection < SitePrism::Page
+        section :section, SitePrism::Section, -> { send(:lazy_query) }
+      end
+
+      it 'should evaluate lambda query' do
+        page_with_lambda_section = PageWithLambdaSection.new
+        expect(page_with_lambda_section).to receive(:lazy_query).and_return('.section')
+        expect(Capybara.page).to receive(:find).with('.section')
+        page_with_lambda_section.section
+      end
+    end
   end
 end
 

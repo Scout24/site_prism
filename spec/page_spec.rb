@@ -21,6 +21,13 @@ describe SitePrism::Page do
     expect(page.url).to eq('/bob')
   end
 
+  it 'should be able to set a lambda url against it' do
+    class PageWithStaticLambdaUrl < SitePrism::Page
+      set_url -> { '/some_url' }
+    end
+    expect(PageWithStaticLambdaUrl.new.url).to eq('/some_url')
+  end
+
   it 'url should be nil by default' do
     class PageDefaultUrl < SitePrism::Page; end
     page = PageDefaultUrl.new
@@ -66,6 +73,16 @@ describe SitePrism::Page do
       expect(page_with_url.url(username: 'foobar', query: { 'recent_posts' => 'true' })).to eq('/users/foobar?recent_posts=true')
       expect(page_with_url.url(username: 'foobar')).to eq('/users/foobar')
       expect(page_with_url.url).to eq('/users')
+    end
+
+    it 'should evaluate lambda url definitions when url is called' do
+      class PageWithDynamicLambdaUrl < SitePrism::Page
+        set_url -> { send(:lazy_load_url) }
+      end
+      page_with_lambda_url = PageWithDynamicLambdaUrl.new
+      expect(page_with_lambda_url).to receive(:lazy_load_url).and_return('/users{/username}').twice
+      expect { page_with_lambda_url.load(username: 'foobar') }.to_not raise_error
+      expect(page_with_lambda_url.url(username: 'foobar')).to eq('/users/foobar')
     end
 
     it 'should allow to load html' do
@@ -132,6 +149,15 @@ describe SitePrism::Page do
     end
     page = PageToSetUrlMatcherAgainst.new
     expect(page.url_matcher).to eq(/bob/)
+  end
+
+  it 'should evaluate lambda url_matcher definitions when url_matcher is called' do
+    class PageWithLambdaUrlMatcher < SitePrism::Page
+      set_url_matcher -> { send(:lazy_load_url_matcher) }
+    end
+    page_with_lambda_matcher = PageWithLambdaUrlMatcher.new
+    expect(page_with_lambda_matcher).to receive(:lazy_load_url_matcher).and_return(/bob/)
+    expect(page_with_lambda_matcher.url_matcher).to eq(/bob/)
   end
 
   it 'should raise an exception if displayed? is called before the matcher has been set' do

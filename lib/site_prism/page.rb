@@ -5,6 +5,7 @@ module SitePrism
     include Capybara::DSL
     include ElementChecker
     include Loadable
+    include LambdaResolver
     extend ElementContainer
 
     load_validation do
@@ -64,7 +65,7 @@ module SitePrism
     end
 
     def self.set_url(page_url)
-      @url = page_url.to_s
+      @url = page_url
     end
 
     def self.set_url_matcher(page_url_matcher)
@@ -81,11 +82,11 @@ module SitePrism
 
     def url(expansion = {})
       return nil if self.class.url.nil?
-      Addressable::Template.new(self.class.url).expand(expansion).to_s
+      Addressable::Template.new(resolve_lambda(self.class.url)).expand(expansion).to_s
     end
 
     def url_matcher
-      self.class.url_matcher
+      resolve_lambda(self.class.url_matcher)
     end
 
     def secure?
@@ -95,19 +96,19 @@ module SitePrism
     private
 
     def find_first(*find_args)
-      page.find(*find_args)
+      page.find(*resolve_lambdas(find_args))
     end
 
     def find_all(*find_args)
-      page.all(*find_args)
+      page.all(*resolve_lambdas(find_args))
     end
 
     def element_exists?(*find_args)
-      page.has_selector?(*find_args)
+      page.has_selector?(*resolve_lambdas(find_args))
     end
 
     def element_does_not_exist?(*find_args)
-      page.has_no_selector?(*find_args)
+      page.has_no_selector?(*resolve_lambdas(find_args))
     end
 
     def url_matches?(expected_mappings = {})

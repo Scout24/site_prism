@@ -76,4 +76,14 @@ describe SitePrism::Page do
     page = PageWithAFewElements.new
     expect(page).to respond_to :all_there?
   end
+
+  it 'should evaluate lambda selector' do
+    class PageWithLambdaElement < SitePrism::Page
+      element :element, -> { send(:lazy_query) }
+    end
+    page_with_lambda_element = PageWithLambdaElement.new
+    expect(page_with_lambda_element).to receive(:lazy_query).and_return('.element')
+    expect(Capybara.page).to receive(:find).with('.element')
+    page_with_lambda_element.element
+  end
 end
