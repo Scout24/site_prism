@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe SitePrism::AddressableUrlMatcher do
   describe '#matches?' do
-    let(:url) { 'https://joe:bleep@bazzle.com:8443/foos/22/bars/12?junk=janky#middle' }
+    let(:url) { 'https://joe:bleep@bazzle.com:8443/foos/22/bars/12?junk=janky&param=some+value#middle' }
 
     it 'matches on templated scheme' do
       expect_matches('{scheme}://bazzle.com').to eq true
@@ -80,7 +80,7 @@ describe SitePrism::AddressableUrlMatcher do
     end
 
     it 'matches on static query' do
-      expect_matches('/foos/22/bars/12?junk=janky').to eq true
+      expect_matches('/foos/22/bars/12?junk=janky&param=some+value').to eq true
     end
 
     it 'fails on bad query' do

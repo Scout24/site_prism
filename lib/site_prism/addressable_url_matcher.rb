@@ -84,7 +84,8 @@ module SitePrism
         unless (extracted_mappings = component_template.extract(component_url))
           # to support Addressable's expansion of queries, ensure it's parsing the fragment as appropriate (e.g. {?params*})
           prefix = COMPONENT_PREFIXES[component]
-          return nil unless prefix && (extracted_mappings = component_template.extract(prefix + component_url))
+          processor = component == :query ? AddressableQueryProcessor : nil
+          return nil unless prefix && (extracted_mappings = component_template.extract(prefix + component_url, processor))
         end
       end
       extracted_mappings

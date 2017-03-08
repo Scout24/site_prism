@@ -8,6 +8,7 @@ module SitePrism
   autoload :Page, 'site_prism/page'
   autoload :Section, 'site_prism/section'
   autoload :Waiter, 'site_prism/waiter'
+  autoload :AddressableQueryProcessor, 'site_prism/addressable_query_processor'
   autoload :AddressableUrlMatcher, 'site_prism/addressable_url_matcher'
 
   class << self
